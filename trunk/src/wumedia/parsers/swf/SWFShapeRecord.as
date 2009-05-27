@@ -23,22 +23,18 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 package wumedia.parsers.swf {
-	import flash.display.Graphics;
-	import flash.display.Shape;
-	import flash.display.Sprite;
-	import flash.events.Event;
-	import flash.geom.Rectangle;	
-
-	/**
+	import flash.display.Graphics;	import flash.display.Shape;	import flash.geom.Rectangle;	
+	/**
 	 * ...
 	 * @author guojian@wu-media.com
 	 */
 	public class SWFShapeRecord {
 		static private var _shape	:Shape = new Shape();
+
+		/*
 		static private var _sprite	:Sprite = new Sprite();
-		
-		static public function drawShapeTimeLapsed(graphics:*, shape:SWFShapeRecord, scale:Number = 1.0, offsetX:Number = 0.0, offsetY:Number = 0.0):void {
-			var elems:Array = shape.elements;
+		static public function drawShapeTimeLapsed(graphics:*, data:SWFShapeRecord, scale:Number = 1.0, offsetX:Number = 0.0, offsetY:Number = 0.0):void {
+			var elems:Array = data.elements;
 			var elemNum:int = -1;
 			var elemLen:int = elems.length;
 			_sprite.addEventListener(Event.ENTER_FRAME, function(e:Event):void {
@@ -60,7 +56,7 @@ package wumedia.parsers.swf {
 					_sprite.removeEventListener(Event.ENTER_FRAME, arguments.callee);
 				}
 			});
-		}
+		}*/
 		
 		static public function drawShape(graphics:*, shape:SWFShapeRecord, scale:Number = 1.0, offsetX:Number = 0.0, offsetY:Number = 0.0):void {
 			var elems:Array = shape.elements;
@@ -222,6 +218,7 @@ package wumedia.parsers.swf {
 						} else {
 							fill1 = null;
 						}
+						// TODO: finish strokes support
 						// line strokes not yet supported
 //						if ( lineStyle > 0 && _lines[lineStyle - 1] ) {
 //							line = _lines[lineStyle - 1];

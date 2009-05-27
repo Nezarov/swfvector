@@ -23,45 +23,31 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 package wumedia.parsers.swf {
-	import flash.display.Graphics;
-	import flash.display.Shape;
-	import flash.display.Sprite;
-	import flash.events.Event;
-	import flash.geom.Rectangle;	
-
-	/**
+	import flash.display.Graphics;	import flash.display.Shape;	import flash.geom.Rectangle;	
+	/**
 	 * ...
 	 * @author guojian@wu-media.com
 	 */
 	public class SWFShapeRecordSimple {
 		static private var _shape	:Shape = new Shape();
-		static private var _sprite	:Sprite = new Sprite();
 		
-		static public function drawShapeTimeLapsed(graphics:*, shape:SWFShapeRecordSimple, scale:Number = 1.0, offsetX:Number = 0.0, offsetY:Number = 0.0):void {
-			var elems:Array = shape.elements;
-			var elemNum:int = -1;
-			var elemLen:int = elems.length;
+
+		static public function drawShape(graphics:*, data:SWFShapeRecordSimple, scale:Number = 1.0, offsetX:Number = 0.0, offsetY:Number = 0.0):void {
+			var group:Array = data.shapesGroup;
+			var shapeNum:int = -1;
+			var shapeLen:int = group.length;
+			var shape:Array;
+			var elemNum:int;
+			var elemLen:int;
 			var elem:SWFGraphicsElement;
-			var m:int = 0;
-			_sprite.addEventListener(Event.ENTER_FRAME, function(e:Event):void {
-				if ( ++elemNum < elemLen ) {
-					elem = elems[elemNum];
+			while ( ++shapeNum < shapeLen ) {
+				shape = group[shapeNum];
+				elemNum = -1;
+				elemLen = shape.length;
+				while ( ++elemNum < elemLen ) {
+					elem = shape[elemNum];
 					elem.apply(graphics, scale, offsetX, offsetY);
-				} else {
-					_sprite.removeEventListener(Event.ENTER_FRAME, arguments.callee);
-					trace("done1");
 				}
-			});
-		}
-		
-		static public function drawShape(graphics:*, shape:SWFShapeRecordSimple, scale:Number = 1.0, offsetX:Number = 0.0, offsetY:Number = 0.0):void {
-			var elems:Array = shape.elements;
-			var elemNum:int = -1;
-			var elemLen:int = elems.length;
-			var elem:SWFGraphicsElement;
-			while ( ++elemNum < elemLen ) {
-				elem = elems[elemNum];
-				elem.apply(graphics, scale, offsetX, offsetY);
 			}
 		}
 		
@@ -79,6 +65,11 @@ package wumedia.parsers.swf {
 			_hasStateNewStyle = _tagType == SWFTagTypes.DEFINE_SHAPE2
 						|| _tagType == SWFTagTypes.DEFINE_SHAPE3;
 			parse(data);
+			if ( _shapesGroup.length > 0 ) {
+				calculateBounds();
+			} else {
+				_bounds = new Rectangle(0, 0, 0, 0);
+			}
 		}
 		
 		private var _tagType				:uint;
@@ -88,10 +79,14 @@ package wumedia.parsers.swf {
 		private var _hasAlpha				:Boolean;
 		private var _hasExtendedFill		:Boolean;
 		private var _hasStateNewStyle		:Boolean;
-		private var _elements				:Array;
 		private var _bounds					:Rectangle;
 		private var _fillStyles				:Array;
 		private var _lineStyles				:Array;
+
+		private var _currentFillStyle		:SWFGraphicsElement;
+		private var _currentLineStyle		:SWFGraphicsElement;
+		private var _currentShape			:Array;
+		private var _shapesGroup			:Array;
 		
 		private function parse(data:SWFData):void {
 			var dx:Number = 0;
@@ -100,9 +95,10 @@ package wumedia.parsers.swf {
 			var line:SWFGraphicsLine;
 			var move:SWFGraphicsMove;
 			
-			_elements = new Array();
+			_shapesGroup = new Array();
 			_fillStyles = new Array();
 			_lineStyles = new Array();
+			_currentShape = new Array();
 			
 			data.synchBits();
 			if ( _hasStyle ) {
@@ -140,11 +136,7 @@ package wumedia.parsers.swf {
 					parseChangeRecord(data, flags);
 				}
 			}
-			if ( _elements.length > 0 ) {
-				calculateBounds();
-			} else {
-				_bounds = new Rectangle(0, 0, 0, 0);
-			}
+			closeShapeIfNewFill(true);
 		}
 		
 
@@ -166,19 +158,20 @@ package wumedia.parsers.swf {
 				lineStyle = data.readUBits(_lineBits);
 			}
 			if ( _hasStyle ) {
-				if ( (stateFillStyle0 || stateFillStyle1) ) {
-					//addElement(new SWFGraphicsEndFill());
-				}
+				// we're ignoring two fill edges here which is the wrong way to parse the data
+				// but works if there are no two fill edges in the shape. it also returns data
+				// that is easier to work with
+				_currentFillStyle = null;
 				if ( fillStyle0 > 0 && _fillStyles[fillStyle0 - 1] ) {
-					addElement(_fillStyles[fillStyle0 - 1]);
+					_currentFillStyle = _fillStyles[fillStyle0 - 1];
 				}
 				if ( fillStyle1 > 0 && _fillStyles[fillStyle1 - 1] ) {
-					addElement(_fillStyles[fillStyle1 - 1]);
+					_currentFillStyle = _fillStyles[fillStyle1 - 1];
 				}
 				if ( lineStyle > 0 && _lineStyles[lineStyle - 1] ) {
-					addElement(_lineStyles[lineStyle - 1]);
+					_currentLineStyle = _lineStyles[lineStyle - 1];
 				} else {
-					addElement(new SWFGraphcisLineStyle());
+					_currentLineStyle = new SWFGraphcisLineStyle();
 				}
 			}
 			if ( _hasStateNewStyle && stateNewStyles ) {
@@ -215,7 +208,29 @@ package wumedia.parsers.swf {
 		}
 		
 		private function addElement(elem:SWFGraphicsElement):void {
-			_elements.push(elem);
+			if ( elem.type == "M" ) {
+				closeShapeIfNewFill();
+			}
+			_currentShape.push(elem);
+		}
+		
+		private function closeShapeIfNewFill(forceClose:Boolean = false):void {
+			if ( _currentShape.length > 0 ) {
+				if ( forceClose || _currentFillStyle ) {
+					if ( _currentFillStyle ) {
+						_currentShape.unshift(_currentFillStyle);
+					}
+					if ( _currentLineStyle ) {
+						_currentShape.unshift(_currentLineStyle);
+					}
+					_shapesGroup.push(_currentShape);
+					_currentShape = new Array();
+				} else {
+					if ( _currentLineStyle ) {
+						_currentShape.push(_currentLineStyle);
+					}
+				}
+			}
 		}
 		
 		private function calculateBounds():void {
@@ -227,8 +242,8 @@ package wumedia.parsers.swf {
 			_bounds = _shape.getRect(_shape);
 		}
 		
-		public function get elements():Array { return _elements; }
 		public function get bounds():Rectangle { return _bounds; }
+		public function get shapesGroup():Array { return _shapesGroup; }
+		
 	}
-	
 }

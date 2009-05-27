@@ -41,8 +41,8 @@ package wumedia.parsers.swf {
 		private var _x:Number;
 		private var _y:Number;
 		
-		override public function apply(graphics:*, scale:Number = 1, offfsetX:Number = 0.0, offfsetY:Number = 0.0):void {
-			graphics.moveTo(offfsetX + _x * scale, offfsetY + _y * scale);
+		override public function apply(graphics:*, scale:Number = 1.0, offsetX:Number = 0.0, offsetY:Number = 0.0):void {
+			graphics.moveTo(offsetX + _x * scale, offsetY + _y * scale);
 		}
 		
 		override public function toString():String {

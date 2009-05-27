@@ -51,12 +51,12 @@ package wumedia.parsers.swf {
 		private var _dx:Number;
 		private var _dy:Number;
 		
-		override public function apply(graphics:*, scale:Number = 1, offfsetX:Number = 0.0, offfsetY:Number = 0.0):void {
-			graphics.lineTo(offfsetX + _dx * scale, offfsetY + _dy * scale);
+		override public function apply(graphics:*, scale:Number = 1.0, offsetX:Number = 0.0, offsetY:Number = 0.0):void {
+			graphics.lineTo(offsetX + _dx * scale, offsetY + _dy * scale);
 		}
 		
 		override public function toString():String {
-			return ["M", _dx, _dy].join(", ");
+			return ["L", _dx, _dy].join(", ");
 		}
 
 		public function get dx():Number { return _dx; }

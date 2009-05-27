@@ -35,7 +35,7 @@ package wumedia.parsers.swf {
 		
 		protected var _type		:String;
 		
-		public function apply(graphics:*, scale:Number = 1, offfsetX:Number = 0.0, offfsetY:Number = 0.0):void {}
+		public function apply(graphics:*, scale:Number = 1, offsetX:Number = 0.0, offsetY:Number = 0.0):void {}
 		public function toString():String { return "SWFGraphicsElement"; }
 		public function get type():String { return _type; }
 		

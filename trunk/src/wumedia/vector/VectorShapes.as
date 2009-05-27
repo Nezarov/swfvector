@@ -253,9 +253,13 @@ package wumedia.vector {
 				data.readUBits(1); // UsesScalingStrokes
 			}
 		}
+		
+		static public function get library():Object { return _library; }
 
 		public function VectorShapes() {
 			throw new Error(getQualifiedClassName(this) + " can not be instantiated");
 		}
+		
+		
 	}
 }
