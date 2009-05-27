@@ -203,8 +203,9 @@ package wumedia.vector {
 					placeData.readUnsignedShort(); // depth
 					shapeId = placeData.readUnsignedShort();
 					matrix = new SWFMatrix(placeData);
-				} else if ( placeType == SWFTagTypes.PLACE_OBJECT2 ) {
+				} else if ( placeType == SWFTagTypes.PLACE_OBJECT3 ) {
 					placeFlags = placeData.readUBits(16); // tags
+					placeData.readUnsignedShort(); // depth
 					if ( (placeFlags & 8 ) != 0
 							|| (placeFlags & 16 ) != 0
 							|| (placeFlags & 512 ) != 0 ) {
