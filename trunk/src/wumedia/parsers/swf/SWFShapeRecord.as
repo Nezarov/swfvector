@@ -256,9 +256,9 @@ package wumedia.parsers.swf {
 			}
 			for ( i = 0; i < num; ++i ) {
 				if ( _tagType == SWFTagTypes.DEFINE_SHAPE4 ) {
-					_lines.push([new SWFGraphcisLineStyle2(data, _hasAlpha, _tagType)]);
+					_lines.push([new SWFGraphicsLineStyle2(data, _hasAlpha, _tagType)]);
 				} else {
-					_lines.push([new SWFGraphcisLineStyle(data, _hasAlpha)]);
+					_lines.push([new SWFGraphicsLineStyle(data, _hasAlpha)]);
 				}
 			}
 		}
@@ -277,7 +277,7 @@ package wumedia.parsers.swf {
 			if ( l > 0 ) {
 				i = -1;
 				while ( ++i < l ) {
-					_elements = _elements.concat(_lines[i]).concat(new SWFGraphcisLineStyle());
+					_elements = _elements.concat(_lines[i]).concat(new SWFGraphicsLineStyle());
 				}
 			}
 			_fills = new Array();

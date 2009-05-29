@@ -36,7 +36,7 @@ package wumedia.vector {
 	/**
 	 * Write text using flash's drawing API instead of the TextField class.
 	 * Advantages: Simpler API, faster for animations
-	 * Disadvantages: Not as crips as the native font engine at smaller sizes (usually < 12px)
+	 * Disadvantages: Not as crisp as the native font engine at smaller sizes (usually < 12px)
 	 * @author guojian@wu-media.com
 	 */
 	public class VectorText {
