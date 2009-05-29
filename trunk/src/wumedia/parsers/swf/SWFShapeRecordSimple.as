@@ -171,7 +171,7 @@ package wumedia.parsers.swf {
 				if ( lineStyle > 0 && _lineStyles[lineStyle - 1] ) {
 					_currentLineStyle = _lineStyles[lineStyle - 1];
 				} else {
-					_currentLineStyle = new SWFGraphcisLineStyle();
+					_currentLineStyle = new SWFGraphicsLineStyle();
 				}
 			}
 			if ( _hasStateNewStyle && stateNewStyles ) {
@@ -200,9 +200,9 @@ package wumedia.parsers.swf {
 			}
 			for ( i = 0; i < numLineStyles; ++i ) {
 				if ( _tagType == SWFTagTypes.DEFINE_SHAPE4 ) {
-					_lineStyles.push(new SWFGraphcisLineStyle2(data, _hasAlpha, _tagType));
+					_lineStyles.push(new SWFGraphicsLineStyle2(data, _hasAlpha, _tagType));
 				} else {
-					_lineStyles.push(new SWFGraphcisLineStyle(data, _hasAlpha));
+					_lineStyles.push(new SWFGraphicsLineStyle(data, _hasAlpha));
 				}
 			}
 		}
