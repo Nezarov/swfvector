@@ -23,50 +23,33 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 package wumedia.parsers.swf {
-	import flash.display.Graphics;	import flash.display.Shape;	import flash.geom.Rectangle;	
-	/**
+	import flash.display.Graphics;
+	import flash.display.Shape;
+	import flash.geom.Rectangle;	
+
+	/**
 	 * ...
 	 * @author guojian@wu-media.com
 	 */
 	public class SWFShapeRecord {
 		static private var _shape	:Shape = new Shape();
-
-		/*
-		static private var _sprite	:Sprite = new Sprite();
-		static public function drawShapeTimeLapsed(graphics:*, data:SWFShapeRecord, scale:Number = 1.0, offsetX:Number = 0.0, offsetY:Number = 0.0):void {
-			var elems:Array = data.elements;
-			var elemNum:int = -1;
-			var elemLen:int = elems.length;
-			_sprite.addEventListener(Event.ENTER_FRAME, function(e:Event):void {
-				if ( ++elemNum < elemLen ) {
-					if ( elems[elemNum] is SWFGraphicsElement ) {
-						elems[elemNum].apply(graphics, scale, offsetX, offsetY);
-					} else if ( elems[elemNum] is Array ) {
-						var a:Array = elems[elemNum];
-						switch( a[0] ) {
-							case "L":
-								graphics["lineTo"](offsetX + a[1] * scale, offsetY + a[2] * scale);
-								break;
-							case "C":
-								graphics["curveTo"](offsetX + a[1] * scale, offsetY + a[2] * scale, offsetX + a[3] * scale, offsetY + a[4] * scale);
-								break;
-						}
-					}
-				} else {
-					_sprite.removeEventListener(Event.ENTER_FRAME, arguments.callee);
-				}
-			});
-		}*/
 		
 		static public function drawShape(graphics:*, shape:SWFShapeRecord, scale:Number = 1.0, offsetX:Number = 0.0, offsetY:Number = 0.0):void {
 			var elems:Array = shape.elements;
 			var elemNum:int = -1;
 			var elemLen:int = elems.length;
+			var lastFill:SWFGraphicsElement;
+			trace("\n\n")
 			while ( ++elemNum < elemLen ) {
 				if ( elems[elemNum] is SWFGraphicsElement ) {
-					elems[elemNum].apply(graphics, scale, offsetX, offsetY);
+					if ( lastFill != elems[elemNum] ) {
+						elems[elemNum].apply(graphics, scale, offsetX, offsetY);
+						trace(elems[elemNum])
+					}
+					lastFill = elems[elemNum];
 				} else if ( elems[elemNum] is Array )  {
 					var a:Array = elems[elemNum];
+					trace(a);
 					switch( a[0] ) {
 						case "M":
 							graphics["moveTo"](offsetX + a[1] * scale, offsetY + a[2] * scale);
@@ -96,11 +79,11 @@ package wumedia.parsers.swf {
 			_hasStateNewStyle = _tagType == SWFTagTypes.DEFINE_SHAPE2
 						|| _tagType == SWFTagTypes.DEFINE_SHAPE3;
 			parse(data);
-			if ( _elements.length > 0 ) {
-				calculateBounds();
-			} else {
-				_bounds = new Rectangle(0, 0, 0, 0);
-			}
+//			if ( _elements.length > 0 ) {
+//				calculateBounds();
+//			} else {
+//				_bounds = new Rectangle(0, 0, 0, 0);
+//			}
 		}
 		
 		private var _tagType				:uint;
@@ -132,11 +115,10 @@ package wumedia.parsers.swf {
 			var elemMove:SWFGraphicsMove;
 			var fill0:Array;
 			var fill1:Array;
-			var lHome:Array = ["L", 0, 0];
+			var lastMove:Array;
 			_elements = new Array();
 			_fills = new Array();
 			_lines = new Array();
-			
 			data.synchBits();
 			if ( _hasStyle ) {
 				parseStyles(data);
@@ -150,37 +132,28 @@ package wumedia.parsers.swf {
 					// Edge shape-record
 					if ( data.readUBits(1) == 0 ) {
 						elemCurve = new SWFGraphicsCurve(data, dx, dy);
-						var c0:Array = ["L", dx, dy];
-						var c1:Array = ["C", elemCurve.cx, elemCurve.cy, elemCurve.ax, elemCurve.ay];
+						trace("C", elemCurve.cx, elemCurve.cy, elemCurve.ax, elemCurve.ay)
 						if ( fill0 ) {
-							fill0.push(c0);
-							fill0.push(c1);
-							fill0.push(lHome);
+							fill0.push(["C", elemCurve.cx, elemCurve.cy, elemCurve.ax, elemCurve.ay]);
 						}
 						if ( fill1 ) {
-							fill1.push(c0);
-							fill1.push(c1);
-							fill1.push(lHome);
+							fill1.push(["C", elemCurve.cx, elemCurve.cy, elemCurve.ax, elemCurve.ay]);
 						}
 						dx = elemCurve.ax;
 						dy = elemCurve.ay;
 					} else {
 						elemLine = new SWFGraphicsLine(data, dx, dy);
-						var l0:Array = ["L", dx, dy];
-						var l1:Array = ["L", elemLine.dx, elemLine.dy];
+						trace("L", elemLine.dx, elemLine.dy);
 						if ( fill0 ) {
-							fill0.push(l0);
-							fill0.push(l1);
-							fill0.push(lHome);
+							fill0.push(["L", elemLine.dx, elemLine.dy]);
 						}
 						if ( fill1 ) {
-							fill1.push(l0);
-							fill1.push(l1);
-							fill1.push(lHome);
+							fill1.push(["L", elemLine.dx, elemLine.dy]);
 						}
 						dx = elemLine.dx;
 						dy = elemLine.dy;
 					}
+					lastMove = null;
 				} else {
 					// Change Record or End
 					flags = data.readUBits(5);
@@ -197,6 +170,14 @@ package wumedia.parsers.swf {
 						elemMove = new SWFGraphicsMove(data);
 						dx = elemMove.x;
 						dy = elemMove.y;
+						lastMove = ["M", dx, dy];
+						trace(lastMove)
+						if ( fill0 ) {
+							fill0.push(["M", dx, dy]);
+						}
+						if ( fill1 ) {
+							fill1.push(["M", dx, dy]);
+						}
 					}
 					if ( stateFillStyle0 ) {
 						fillStyle0 = data.readUBits(_fillBits);
@@ -209,22 +190,21 @@ package wumedia.parsers.swf {
 					}
 					if ( _hasStyle ) {
 						if ( fillStyle0 > 0 && _fills[fillStyle0 - 1] ) {
+							trace("fill 0", fillStyle0 - 1);
 							fill0 = _fills[fillStyle0 - 1];
+							fill0.push(["M", dx, dy]);
 						} else {
 							fill0 = null;
 						}
 						if ( fillStyle1 > 0 && _fills[fillStyle1 - 1] ) {
+							trace("fill 1", fillStyle1 - 1);
 							fill1 = _fills[fillStyle1 - 1];
+							fill1.push(["M", dx, dy]);
 						} else {
 							fill1 = null;
 						}
-						// TODO: finish strokes support
-						// line strokes not yet supported
-//						if ( lineStyle > 0 && _lines[lineStyle - 1] ) {
-//							line = _lines[lineStyle - 1];
-//						} else {
-//							line = null;
-//						}
+						
+						
 					}
 					if ( _hasStateNewStyle && stateNewStyles ) {
 						parseStyles(data);
@@ -247,8 +227,11 @@ package wumedia.parsers.swf {
 				num = data.readUnsignedShort();
 			}
 			for ( i = 0; i < num; ++i ) {
-				_fills.push([new SWFGraphicsFillStyle(data, _hasAlpha), ["M", 0, 0]]);
+				_fills.push([new SWFGraphicsFillStyle(data, _hasAlpha)]);
 			}
+			trace("fillArray");
+			_fills.every(function(ele:Array,...args):Boolean { trace(ele); return true; } );
+			trace("\n")
 			
 			num = data.readUnsignedByte();
 			if ( num == 0xff ) {
@@ -267,18 +250,9 @@ package wumedia.parsers.swf {
 			var i:int;
 			var l:int;
 			l = _fills.length;
-			if ( l > 0 ) {
-				i = -1;
-				while ( ++i < l ) {
-					_elements = _elements.concat(_fills[i]);
-				}
-			}
-			l = _lines.length;
-			if ( l > 0 ) {
-				i = -1;
-				while ( ++i < l ) {
-					_elements = _elements.concat(_lines[i]).concat(new SWFGraphicsLineStyle());
-				}
+			i = -1;
+			while ( ++i < l ) {
+				_elements = _elements.concat(_fills[i]);
 			}
 			_fills = new Array();
 			_lines = new Array();
