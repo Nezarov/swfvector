@@ -24,7 +24,6 @@
  */
 package wumedia.parsers.swf {
 	import flash.utils.ByteArray;
-	import flash.geom.Rectangle;	
 
 	/**
 	 * ...
@@ -45,6 +44,7 @@ package wumedia.parsers.swf {
 		
 		private var _data		:SWFData;
 		private var _tagType	:uint;
+		private var _flags		:uint;
 		private var _name		:String;
 		private var _ascent		:Number;
 		private var _descent	:Number;
@@ -60,7 +60,6 @@ package wumedia.parsers.swf {
 		private function parse():void {
 			var i:int;
 			var gSize:uint;
-			var flags:uint;
 			var nLen:uint;
 			var offsets:Array;
 			var off32:Boolean;
@@ -71,14 +70,14 @@ package wumedia.parsers.swf {
 			_bottom = Number.NEGATIVE_INFINITY;
 			
 			_data.position += 2;	// id
-			flags = _data.readUnsignedByte();
+			_flags = _data.readUnsignedByte();
 			_data.position += 1;	// language
 			nLen = _data.readUnsignedByte();
 			_name = _data.readUTFBytes(nLen);
 			_numGlyphs = _data.readUnsignedShort();
 			
 			offsets = new Array(_numGlyphs + 1);
-			off32 = (flags & 0x08) != 0;
+			off32 = (_flags & 0x08) != 0;
 			for ( i = 0; i <= _numGlyphs; ++i ) {
 				offsets[i] = off32 ? _data.readUnsignedInt() : _data.readUnsignedShort();
 			}
@@ -106,7 +105,7 @@ package wumedia.parsers.swf {
 					_bottom = shape.bounds.bottom;
 				}
 			}
-			var hasStyles:Boolean = (flags & 0x80) != 0;
+			var hasStyles:Boolean = (_flags & 0x80) != 0;
 			if ( hasStyles ) {
 				_ascent = _data.readShort() * 0.05;
 				_descent = _data.readShort() * 0.05;
@@ -135,7 +134,9 @@ package wumedia.parsers.swf {
 		public function get leading():Number { return _leading; }
 		public function get glyphs():Object { return _glyphs; }
 		public function get advances():Object { return _advances; }
-		public function get top():Number { return _top; }
+		public function get isBold():Boolean { return (_flags & 0x01) != 0; }		public function get isItalic():Boolean { return (_flags & 0x02) != 0; }
+		public function get isBoldItalic():Boolean { return isBold && isItalic; }
+		public function get isRegular():Boolean { return !isBold && !isItalic; }		public function get top():Number { return _top; }
 		public function get bottom():Number { return _bottom; }
 	}
 }
