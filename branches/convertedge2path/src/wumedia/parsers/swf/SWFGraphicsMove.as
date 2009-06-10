@@ -32,25 +32,18 @@ package wumedia.parsers.swf {
 		
 		public function SWFGraphicsMove(data:SWFData) {
 			var moveBits:uint = data.readUBits(5);
-			_x = data.readSBits(moveBits) * 0.05;
-			_y = data.readSBits(moveBits) * 0.05;
+			x = data.readSBits(moveBits);
+			y = data.readSBits(moveBits);
 			
 			_type = "M";
 		}
 		
-		private var _x:Number;
-		private var _y:Number;
+		public var x:int;
+		public var y:int;
 		
-		override public function apply(graphics:*, scale:Number = 1.0, offsetX:Number = 0.0, offsetY:Number = 0.0):void {
-			graphics.moveTo(offsetX + _x * scale, offsetY + _y * scale);
+		override public function apply(graphics:*, scale:Number = 1, offsetX:Number = 0.0, offsetY:Number = 0.0):void {
+			graphics.moveTo(x * scale + offsetX, y * scale + offsetY);
 		}
 		
-		override public function toString():String {
-			return ["M", _x, _y].join(", ");
-		}
-		public function get x():Number { return _x; }
-		public function get y():Number { return _y; }
-		public function set x(x : Number) : void { _x = x; }
-		public function set y(y : Number) : void { _y = y; }
 	}
 }

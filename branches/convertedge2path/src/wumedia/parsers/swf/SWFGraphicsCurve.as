@@ -30,38 +30,28 @@ package wumedia.parsers.swf {
 	 */
 	public class SWFGraphicsCurve extends SWFGraphicsElement {
 		
-		public function SWFGraphicsCurve(data:SWFData, offsetX:Number = 0.0, offsetY:Number = 0.0) {
+		public function SWFGraphicsCurve(data:SWFData, offsetX:int = 0.0, offsetY:int = 0.0) {
+			sx = offsetX;
+			sy = offsetY;
 			var numBits:uint = data.readUBits(4) + 2;
-			_cx = data.readSBits(numBits) * 0.05 + offsetX;
-			_cy = data.readSBits(numBits) * 0.05 + offsetY;
-			_ax = data.readSBits(numBits) * 0.05 + _cx;
-			_ay = data.readSBits(numBits) * 0.05 + _cy;
+			cx = data.readSBits(numBits) + sx;
+			cy = data.readSBits(numBits) + sy;
+			x = data.readSBits(numBits) + cx;
+			y = data.readSBits(numBits) + cy;
 			
 			_type = "C";
 		}
 		
+		public var cx:int;
+		public var cy:int;
+		public var sx:int;
+		public var sy:int;
+		public var x:int;
+		public var y:int;
 		
-		private var _cx:Number;
-		private var _cy:Number;
-		private var _ax:Number;
-		private var _ay:Number;
-		
-		override public function apply(graphics:*, scale:Number = 1.0, offsetX:Number = 0.0, offsetY:Number = 0.0):void {
-			graphics.curveTo(offsetX + _cx * scale, offsetY + _cy * scale, offsetX + _ax * scale, offsetY + _ay * scale);
-		}
-		
-		override public function toString():String {
-			return ["C", _cx, _cy, _ax, _ay].join(", ");
+		override public function apply(graphics:*, scale:Number = 1, offsetX:Number = 0.0, offsetY:Number = 0.0):void {
+			graphics.curveTo(cx * scale + offsetX, cy * scale + offsetY, x * scale + offsetX, y * scale + offsetY);
 		}
 
-		public function get cx():Number { return _cx; }
-		public function get cy():Number { return _cy; }
-		public function get ax():Number { return _ax; }
-		public function get ay():Number { return _ay; }
-		
-		public function set cx(cx : Number) : void { _cx = cx; }
-		public function set cy(cy : Number) : void { _cy = cy; }
-		public function set ax(ax : Number) : void { _ax = ax; }
-		public function set ay(ay : Number) : void { _ay = ay; }
 	}
 }

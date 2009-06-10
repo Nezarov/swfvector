@@ -40,6 +40,7 @@ package wumedia.parsers.swf {
 			var elemNum:int;
 			var elemLen:int;
 			var elem:SWFGraphicsElement;
+			scale *= .05;
 			while ( ++shapeNum < shapeLen ) {
 				shape = group[shapeNum];
 				elemNum = -1;
@@ -113,12 +114,12 @@ package wumedia.parsers.swf {
 					// Edge shape-record
 					if ( data.readUBits(1) == 0 ) {
 						addElement(curve = new SWFGraphicsCurve(data, dx, dy));
-						dx = curve.ax;
-						dy = curve.ay;
+						dx = curve.x;
+						dy = curve.y;
 					} else {
 						addElement(line = new SWFGraphicsLine(data, dx, dy));
-						dx = line.dx;
-						dy = line.dy;
+						dx = line.x;
+						dy = line.y;
 					}
 				} else {
 					// Change Record or End

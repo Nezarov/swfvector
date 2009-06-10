@@ -29,39 +29,34 @@ package wumedia.parsers.swf {
 	 */
 	public class SWFGraphicsLine extends SWFGraphicsElement {
 		
-		public function SWFGraphicsLine(data:SWFData, offsetX:Number = 0.0, offsetY:Number = 0.0) {
+		public function SWFGraphicsLine(data:SWFData, offsetX:int = 0.0, offsetY:int = 0.0) {
 			var numBits:uint = data.readUBits(4) + 2;
 			var generaLine:Boolean = data.readUBits(1) == 1;
+			sx = offsetX;
+			sy = offsetY;
 			if ( generaLine ) {
-				_dx = data.readSBits(numBits) * 0.05 + offsetX;
-				_dy = data.readSBits(numBits) * 0.05 + offsetY;
+				x = data.readSBits(numBits) + offsetX;
+				y = data.readSBits(numBits) + offsetY;
 			} else {
 				var isVertical:Boolean = data.readUBits(1) == 1;
 				if ( isVertical ) {
-					_dx = offsetX;
-					_dy = data.readSBits(numBits) * 0.05 + offsetY;
+					x = offsetX;
+					y = data.readSBits(numBits) + offsetY;
 				} else {
-					_dx = data.readSBits(numBits) * 0.05 + offsetX;
-					_dy = offsetY;
+					x = data.readSBits(numBits) + offsetX;
+					y = offsetY;
 				}
 			}
 			_type = "L";
 		}
 		
-		private var _dx:Number;
-		private var _dy:Number;
+		public var sx:int;		public var sy:int;
+		public var x:int;
+		public var y:int;
 		
-		override public function apply(graphics:*, scale:Number = 1.0, offsetX:Number = 0.0, offsetY:Number = 0.0):void {
-			graphics.lineTo(offsetX + _dx * scale, offsetY + _dy * scale);
-		}
-		
-		override public function toString():String {
-			return ["L", _dx, _dy].join(", ");
+		override public function apply(graphics:*, scale:Number = 1, offsetX:Number = 0.0, offsetY:Number = 0.0):void {
+			graphics.lineTo(x * scale + offsetX, y * scale + offsetY);
 		}
 
-		public function get dx():Number { return _dx; }
-		public function get dy():Number { return _dy; }
-		public function set dx(dx : Number) : void { _dx = dx; }
-		public function set dy(dy : Number) : void { _dy = dy; }
 	}
 }

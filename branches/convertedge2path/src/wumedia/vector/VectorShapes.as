@@ -28,7 +28,6 @@ package wumedia.vector {
 	import wumedia.parsers.swf.SWFParser;
 	import wumedia.parsers.swf.SWFRect;
 	import wumedia.parsers.swf.SWFShapeRecord;
-	import wumedia.parsers.swf.SWFShapeRecordSimple;
 	import wumedia.parsers.swf.SWFTag;
 	import wumedia.parsers.swf.SWFTagTypes;
 	
@@ -39,8 +38,6 @@ package wumedia.vector {
 	 * @author guojian@wu-media.com
 	 */
 	public class VectorShapes {
-		static public const METHOD_CONTINUOUS_POINTS	:uint = 0;
-		static public const METHOD_REGULAR				:uint = 1;
 		static private var _library						:Object = new Object();
 		
 		/**
@@ -52,12 +49,10 @@ package wumedia.vector {
 		 * @param offsetY	The y offset
 		 */
 		static public function draw(graphics:*, id:String, scale:Number = 1.0, offsetX:Number = 0.0, offsetY:Number = 0.0):void {
-			if ( !_library[id] ) {
-				trace("ERROR: missing " + id + " vector");
-			} else if ( _library[id] is SWFShapeRecordSimple ) {
-				SWFShapeRecordSimple.drawShape(graphics, _library[id], scale, offsetX, offsetY);
-			} else {
+			if ( _library[id] ) {
 				SWFShapeRecord.drawShape(graphics, _library[id], scale, offsetX, offsetY);
+			} else {
+				trace("ERROR: missing " + id + " vector");
 			}
 		}
 
@@ -65,18 +60,8 @@ package wumedia.vector {
 		 * Extract vector shapes from the swf Sprite/MovieClip library.
 		 * @param bytes	The ByteArray for the source (swf)
 		 * @param ids	An Array of class names/linkage names where the shapes are contained
-		 * @param method	The prefered method is METHOD_CONTINUOUS_POINTS although it does not
-		 * 					support all vectors, it is friendlier to work with.  METHOD_REGULAR supports
-		 * 					all vectors but the data is not friendly to 3D operations like extruding.
-		 * 					
-		 * 					Warning: METHOD_REGULAR causes slower rendering due to more drawing passes
-		 * 					required.
-		 * 					
-		 * 					NOTE: To usse METHOD_CONTINUOUS_POINTS, your vector data must be on the same layer
-		 * 					separated by groups. Vector data that is flat and overlapping will require
-		 * 					METHOD_REGULAR to render properly.
 		 */
-		static public function extractFromLibrary( bytes:ByteArray, ids:Array, method:uint = METHOD_CONTINUOUS_POINTS ):void {
+		static public function extractFromLibrary( bytes:ByteArray, ids:Array ):void {
 			try {
 				var swf:SWFParser = new SWFParser(bytes);
 				var classes:Object = parseClassIdTable(swf);
@@ -105,11 +90,7 @@ package wumedia.vector {
 						if ( _library[classes[spriteId]] ) {
 							trace("WARNING: vector shape with id " + classes[spriteId] +  " already exists. replacing.");
 						}
-						if ( method == METHOD_REGULAR ) {
-							_library[classes[spriteId]] = new SWFShapeRecord(defineShape.data, defineShape.type);	
-						} else {
-							_library[classes[spriteId]] = new SWFShapeRecordSimple(defineShape.data, defineShape.type);	
-						}
+						_library[classes[spriteId]] = new SWFShapeRecord(defineShape.data, defineShape.type);
 					}
 				}
 			} catch (err:Error) {
@@ -123,18 +104,8 @@ package wumedia.vector {
 		 * Extract vector shapes from 1st frame of the main timeline
 		 * @param bytes	The ByteArray for the source (swf)
 		 * @param id	The name you want to give this shape
-		 * @param method	The prefered method is METHOD_CONTINUOUS_POINTS although it does not
-		 * 					support all vectors, it is friendlier to work with.  METHOD_REGULAR supports
-		 * 					all vectors but the data is not friendly to 3D operations like extruding.
-		 * 					
-		 * 					Warning: METHOD_REGULAR causes slower rendering due to more drawing passes
-		 * 					required.
-		 * 					
-		 * 					NOTE: To usse METHOD_CONTINUOUS_POINTS, your vector data must be on the same layer
-		 * 					separated by groups. Vector data that is flat and overlapping will require
-		 * 					METHOD_REGULAR to render properly.
 		 */
-		static public function extractFromStage( bytes:ByteArray, id:String, method:uint = METHOD_CONTINUOUS_POINTS ):void {
+		static public function extractFromStage( bytes:ByteArray, id:String):void {
 			try {
 				if ( _library[id] ) {
 					throw new Error(id + " already exists");
@@ -150,13 +121,9 @@ package wumedia.vector {
 					defineShape.data.position = 0;
 					shiftDataPosToShapeRecord(defineShape.data, defineShape.type);
 					if ( _library[id] ) {
-							trace("WARNING: vector shape with id " + id +  " already exists. replacing.");
-						}
-					if ( method == METHOD_REGULAR ) {
-						_library[id] = new SWFShapeRecord(defineShape.data, defineShape.type);	
-					} else {
-						_library[id] = new SWFShapeRecordSimple(defineShape.data, defineShape.type);	
+						trace("WARNING: vector shape with id " + id +  " already exists. replacing.");
 					}
+					_library[id] = new SWFShapeRecord(defineShape.data, defineShape.type);
 				} else {
 					throw new Error("no shapes found");
 				}
