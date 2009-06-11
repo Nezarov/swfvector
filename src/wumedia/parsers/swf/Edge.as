@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright 2009 (c) Guojian Miguel Wu, guojian@wu-media.com.
+ * Copyright 2009 (c) Guojian Miguel Wu, guojian@wu-media.com | guojian.wu@ogilvy.com
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -25,7 +25,7 @@
 package wumedia.parsers.swf {
 
 	/**
-	 * @author guojian@wu-media.com
+	 * @author guojian@wu-media.com | guojian.wu@ogilvy.com
 	 */
 	public class Edge {
 		static public const CURVE	:uint = 0;
