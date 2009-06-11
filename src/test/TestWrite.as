@@ -1,6 +1,6 @@
 ﻿package test {
 	import wumedia.vector.VectorText;
-	
+
 	import flash.display.GradientType;
 	import flash.display.Sprite;
 	import flash.display.StageAlign;
@@ -8,7 +8,7 @@
 	import flash.events.Event;
 	import flash.geom.Matrix;
 	import flash.text.Font;
-	import flash.utils.getTimer;	
+	import flash.utils.getTimer;
 
 	/**
 	 * @author guojian@wu-media.com | guojian.wu@ogilvy.com
@@ -25,8 +25,8 @@
 			stage.scaleMode = StageScaleMode.NO_SCALE;
 			stage.align = StageAlign.TOP_LEFT;
 			
-			Font.registerFont(Font1);
-			var t:Number = getTimer();			VectorText.extractFont(root.loaderInfo.bytes, ["_Verdana"], true);
+			Font.registerFont(Font0);			Font.registerFont(Font1);
+			var t:Number = getTimer();			VectorText.extractFont(root.loaderInfo.bytes, ["_Arial"], true);
 			trace("parse time:" + ((getTimer() - t)/ 1000) + "s");
 			stage.addEventListener(Event.RESIZE, update);
 			update();
@@ -46,7 +46,7 @@
 			graphics.endFill();
 			
 			graphics.beginGradientFill(GradientType.LINEAR, [0xff4400, 0x0000ff, 0xff4400], [1, 1, 1], [0x00, 0x77, 0xff], m);
-			VectorText.write(graphics, "_Verdana", 20, 20, 0, "Hello World. This text is aligned TOP LEFT on baseline", w2, h2, w2, VectorText.TOP_LEFT, false);			graphics.endFill();
+			VectorText.write(graphics, "_Arial", 20, 20, 0, "Hello World. This text is aligned TOP LEFT on baseline", w2, h2, w2, VectorText.TOP_LEFT, false);			graphics.endFill();
 		}
 	}
 	
