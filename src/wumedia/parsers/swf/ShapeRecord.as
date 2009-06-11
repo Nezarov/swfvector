@@ -49,9 +49,11 @@ package wumedia.parsers.swf {
 					dy = edge.y;
 				} else if ( elems[elemNum] is FillStyle ) {
 					(elems[elemNum] as FillStyle).apply(graphics, scale, offsetX, offsetY);
-				} else if ( elems[elemNum] is LineStyle ) {
-					(elems[elemNum] as LineStyle).apply(graphics);
 				}
+				// lineStyles not supported yet
+//				else if ( elems[elemNum] is LineStyle ) {
+//					(elems[elemNum] as LineStyle).apply(graphics);
+//				}
 			}
 		}
 		
@@ -87,7 +89,6 @@ package wumedia.parsers.swf {
 		private var _elements				:Array;
 		private var _bounds					:Rectangle;
 		private var _fills					:Array;
-		private var _lines					:Array;
 		private var _fill0					:Array;
 		private var _fill1					:Array;
 		private var _fill0Index				:uint;
@@ -109,7 +110,6 @@ package wumedia.parsers.swf {
 			var edge:Edge;
 			_elements = new Array();
 			_fills = new Array();
-			_lines = new Array();
 			data.synchBits();
 			if ( _hasStyle ) {
 				parseStyles(data);
@@ -202,7 +202,9 @@ package wumedia.parsers.swf {
 				num = data.readUnsignedShort();
 			}
 			for ( i = 0; i < num; ++i ) {
-				_lines.push([new LineStyle(_tagType == TagTypes.DEFINE_SHAPE4 ? LineStyle.TYPE_2 : LineStyle.TYPE_1, data, _hasAlpha)]);
+				// lineStyles not supported yet
+				// we parse linestyles for data sanity but we don't use them
+				new LineStyle(_tagType == TagTypes.DEFINE_SHAPE4 ? LineStyle.TYPE_2 : LineStyle.TYPE_1, data, _hasAlpha);
 			}
 		}
 		
@@ -234,22 +236,17 @@ package wumedia.parsers.swf {
 				_elements = _elements.concat(_fills[i]);
 			}
 			_fills = new Array();
-			_lines = new Array();
 		}
 		
 		private function sortEdges(arr:Array):Array {
 			var i:int;
 			var j:int;
+			var sorted:Array = [arr.shift()];
 			var edge:Edge;
-			var elem:*;
-			var sorted:Array = [];
-			arr.reverse();
-			while (!((elem = arr.pop()) is Edge)) {
-				sorted.push(elem);
-			}
-			sorted.push(edge = elem as Edge);
-			j = arr.length;
-			while ( j > 0 ) {
+			
+			while ( arr.length > 0 ) {
+				sorted.push(edge = arr.pop());
+				j = arr.length;
 				while ( --j > -1 ) {
 					i = arr.length;
 					while ( --i > -1 ) {
@@ -259,10 +256,6 @@ package wumedia.parsers.swf {
 							continue;
 						}
 					}
-				}
-				j = arr.length;
-				if (j > 0) {
-					sorted.push(edge = arr.pop());
 				}
 			}
 			return sorted;
