@@ -189,13 +189,15 @@ package wumedia.vector {
 				}
 				while ( ++charNum < charLen ) {
 					char = lineText.charAt(charNum);
-					advance = fontDef.advances[char];
-					if ( charNum == 0 ) {
-						// flush the X to the 0 delta position
-						offsetX -= fontDef.glyphs[char].bounds.left * scale;
+					if (fontDef.glyphs[char]) {
+						advance = fontDef.advances[char];
+						if ( charNum == 0 ) {
+							// flush the X to the 0 delta position
+							offsetX -= fontDef.glyphs[char].bounds.left * scale;
+						}
+						ShapeRecord.drawShape(graphics, fontDef.glyphs[char], scale, offsetX, offsetY);
+						offsetX += (advance + advance * kerning) * scale;
 					}
-					ShapeRecord.drawShape(graphics, fontDef.glyphs[char], scale, offsetX, offsetY);
-					offsetX += (advance + advance * kerning) * scale;
 				}
 				offsetY += leading;
 			}
@@ -249,7 +251,7 @@ package wumedia.vector {
 				if ( char == "\n" ) {
 					lines[++lineNum] = "";
 					w = 0;
-				} else {
+				} if (fontDef.glyphs[char]) {
 					advance = fontDef.advances[char];
 					w += (advance + advance * kerning ) * scale;
 					if ( w > width ) {
@@ -301,11 +303,13 @@ package wumedia.vector {
 				charLen = lineText.length;
 				while ( ++charNum < charLen ) {
 					char = lineText.charAt(charNum);
-					advance = fontDef.advances[char];
-					bounds = fontDef.glyphs[char].bounds;
-					lineW += (advance + advance * kerning ) * scale;
-					if ( charNum == 0 ) {
-						lineW -= bounds.left * scale;
+					if (fontDef.glyphs[char]) {
+						advance = fontDef.advances[char];
+						bounds = fontDef.glyphs[char].bounds;
+						lineW += (advance + advance * kerning ) * scale;
+						if ( charNum == 0 ) {
+							lineW -= bounds.left * scale;
+						}
 					}
 				}
 				lineW -= (advance * kerning + (advance - bounds.right)) * scale;
