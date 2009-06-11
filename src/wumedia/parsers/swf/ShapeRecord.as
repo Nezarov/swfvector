@@ -240,11 +240,16 @@ package wumedia.parsers.swf {
 		private function sortEdges(arr:Array):Array {
 			var i:int;
 			var j:int;
-			var sorted:Array = [arr.shift()];
 			var edge:Edge;
-			while ( arr.length > 0 ) {
-				sorted.push(edge = arr.pop());
-				j = arr.length;
+			var elem:*;
+			var sorted:Array = [];
+			arr.reverse();
+			while (!((elem = arr.pop()) is Edge)) {
+				sorted.push(elem);
+			}
+			sorted.push(edge = elem as Edge);
+			j = arr.length;
+			while ( j > 0 ) {
 				while ( --j > -1 ) {
 					i = arr.length;
 					while ( --i > -1 ) {
@@ -254,6 +259,10 @@ package wumedia.parsers.swf {
 							continue;
 						}
 					}
+				}
+				j = arr.length;
+				if (j > 0) {
+					sorted.push(edge = arr.pop());
 				}
 			}
 			return sorted;
