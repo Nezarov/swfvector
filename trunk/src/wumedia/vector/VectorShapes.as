@@ -1,5 +1,5 @@
 /*
- * Copyright 2009 (c) Guojian Miguel Wu, guojian@wu-media.com.
+ * Copyright 2009 (c) Guojian Miguel Wu, guojian@wu-media.com | guojian.wu@ogilvy.com
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -25,7 +25,7 @@
 package wumedia.vector {
 	import wumedia.parsers.swf.Data;	import wumedia.parsers.swf.SWFParser;	import wumedia.parsers.swf.ShapeRecord;	import wumedia.parsers.swf.Tag;	import wumedia.parsers.swf.TagTypes;		import flash.geom.Matrix;	import flash.utils.ByteArray;	import flash.utils.getQualifiedClassName;	
 	/**
-	 * @author guojian@wu-media.com
+	 * @author guojian@wu-media.com | guojian.wu@ogilvy.com
 	 */
 	public class VectorShapes {
 		static private var _library						:Object = new Object();

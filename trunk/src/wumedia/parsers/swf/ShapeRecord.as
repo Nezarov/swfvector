@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright 2009 (c) Guojian Miguel Wu, guojian@wu-media.com.
+ * Copyright 2009 (c) Guojian Miguel Wu, guojian@wu-media.com | guojian.wu@ogilvy.com
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -23,13 +23,10 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 package wumedia.parsers.swf {
-	import flash.display.Graphics;
-	import flash.display.Shape;
-	import flash.geom.Rectangle;	
-
-	/**
+	import flash.display.Graphics;	import flash.display.Shape;	import flash.geom.Rectangle;	
+	/**
 	 * ...
-	 * @author guojian@wu-media.com
+	 * @author guojian@wu-media.com | guojian.wu@ogilvy.com
 	 */
 	public class ShapeRecord {
 		static private var _shape	:Shape = new Shape();
@@ -164,7 +161,7 @@ package wumedia.parsers.swf {
 						lineStyle = data.readUBits(_lineBits);
 					}
 					if ( _hasStyle ) {
-						saveFills();
+						queueEdges();
 						_fill0Index = fillStyle0 - 1;
 						if ( fillStyle0 > 0 && _fills[_fill0Index] ) {
 							_fill0 = [];
@@ -185,14 +182,14 @@ package wumedia.parsers.swf {
 					}
 				}
 			}
-			dumpFills();
+			saveEdges();
 		}
 		
 
 		private function parseStyles(data:Data):void {
 			var i:int;
 			var num:int;
-			dumpFills();
+			saveEdges();
 			num = data.readUnsignedByte();
 			if ( _hasExtendedFill && num == 0xff ) {
 				num = data.readUnsignedShort();
@@ -209,18 +206,25 @@ package wumedia.parsers.swf {
 			}
 		}
 		
-		private function saveFills():void {
+		/**
+		 * Add the current edges back to the fill arrays and wait to be saved
+		 * @private
+		 */
+		private function queueEdges():void {
 			if ( _fill0 ) {
 				_fills[_fill0Index] = _fills[_fill0Index].concat(_fill0);
 			}
 			if( _fill1 ) {
-				_fill1.reverse();
 				_fills[_fill1Index] = _fills[_fill1Index].concat(_fill1);
 			}
 		}
 		
-		private function dumpFills():void {
-			saveFills();
+		/**
+		 * Sort and save the fill edges
+		 * @private
+		 */
+		private function saveEdges():void {
+			queueEdges();
 			var i:int;
 			var l:int;
 			l = _fills.length;
@@ -238,7 +242,6 @@ package wumedia.parsers.swf {
 			var j:int;
 			var sorted:Array = [arr.shift()];
 			var edge:Edge;
-			
 			while ( arr.length > 0 ) {
 				sorted.push(edge = arr.pop());
 				j = arr.length;
