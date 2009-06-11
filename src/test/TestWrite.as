@@ -26,7 +26,7 @@
 			stage.align = StageAlign.TOP_LEFT;
 			
 			Font.registerFont(Font1);
-			var t:Number = getTimer();			VectorText.extractFont(root.loaderInfo.bytes, true);
+			var t:Number = getTimer();			VectorText.extractFont(root.loaderInfo.bytes, ["_Verdana"], true);
 			trace("parse time:" + ((getTimer() - t)/ 1000) + "s");
 			stage.addEventListener(Event.RESIZE, update);
 			update();
