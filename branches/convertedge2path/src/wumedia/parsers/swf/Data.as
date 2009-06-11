@@ -23,16 +23,18 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 package wumedia.parsers.swf {
+	import flash.geom.Matrix;
+	import flash.geom.Rectangle;
 	import flash.utils.ByteArray;
 	import flash.utils.Endian;
-	import flash.utils.IDataInput;
+	import flash.utils.IDataInput;	
 
 	/**
 	 * @author guojian@wu-media.com
 	 */
-	public class SWFData implements IDataInput {
+	public class Data implements IDataInput {
 		
-		public function SWFData(data:ByteArray) {
+		public function Data(data:ByteArray) {
 			_data = data;
 			_data.endian = Endian.LITTLE_ENDIAN;
 			synchBits();
@@ -113,6 +115,48 @@ package wumedia.parsers.swf {
 			double[7] = bytes[4];
 			double.position = 0;
 			return double.readDouble();
+		}
+		
+		public function readMatrix():Matrix {
+			var scaleX:Number;
+			var scaleY:Number;
+			var rotate0:Number;
+			var rotate1:Number;
+			var translateX:Number;
+			var translateY:Number;
+			var bits:uint;
+			synchBits();
+			if ( readUBits(1) == 1) {
+				bits = readUBits(5);
+				scaleX = readSBits(bits) / 65536.0;
+				scaleY = readSBits(bits) / 65536.0;
+			} else {
+				scaleX = 1;
+				scaleY = 1;
+			}
+			if ( readUBits(1) == 1) {
+				bits = readUBits(5);
+				rotate0 = readSBits(bits) / 65536.0;
+				rotate1 = readSBits(bits) / 65536.0;
+			} else {
+				rotate0 = 0;
+				rotate1 = 0;
+			}
+			bits = readUBits(5);
+			translateX = readSBits(bits) * 0.05;
+			translateY = readSBits(bits) * 0.05;
+			
+			return new Matrix(scaleX, rotate0, rotate1, scaleY, translateX, translateY);
+		}
+		
+		public function readRect():Rectangle {
+			var bits:uint = readUBits(5);
+			var xMin:Number = readSBits(bits) * 0.05;
+			var xMax:Number	= readSBits(bits) * 0.05;
+			var yMin:Number = readSBits(bits) * 0.05;
+			var yMax:Number	= readSBits(bits) * 0.05;
+			synchBits();
+			return new Rectangle(xMin, yMin, xMax - xMin, yMax - yMin);
 		}
 		
 		public function readFloat():Number{

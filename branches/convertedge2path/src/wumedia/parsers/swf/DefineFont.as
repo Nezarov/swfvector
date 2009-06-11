@@ -30,9 +30,9 @@ package wumedia.parsers.swf {
 	 * ...
 	 * @author guojian@wu-media.com
 	 */
-	public class SWFDefineFont {
+	public class DefineFont {
 		
-		public function SWFDefineFont(tag:SWFTag) {
+		public function DefineFont(tag:Tag) {
 			_data = tag.data;
 			_tagType = tag.type;
 			_ascent = 0;
@@ -43,7 +43,7 @@ package wumedia.parsers.swf {
 			}
 		}
 		
-		private var _data		:SWFData;
+		private var _data		:Data;
 		private var _tagType	:uint;
 		private var _flags		:uint;
 		private var _name		:String;
@@ -89,12 +89,12 @@ package wumedia.parsers.swf {
 				var bytes:ByteArray = new ByteArray();
 				_data.readBytes(bytes, 0, gSize);
 				bytes.position = 0;
-				_shapes[i - 1] = new SWFShapeRecord(new SWFData(bytes), _tagType);
+				_shapes[i - 1] = new ShapeRecord(new Data(bytes), _tagType);
 			}
 			var chars:Array = new Array(_numGlyphs);
 			for ( i = 0; i < _numGlyphs; ++i ) {
 				var char:String = String.fromCharCode(_data.readUnsignedShort());
-				var shape:SWFShapeRecord = _shapes[i];
+				var shape:ShapeRecord = _shapes[i];
 				_glyphs[char] = shape;
 				chars[i] = char;
 				if ( char > "A" && char < "Z" ) {

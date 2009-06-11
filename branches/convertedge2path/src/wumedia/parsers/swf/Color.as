@@ -28,18 +28,40 @@ package wumedia.parsers.swf {
 	 * ...
 	 * @author guojian@wu-media.com
 	 */
-	public class SWFTag {
+	public class Color {
 		
-		public function SWFTag(type:uint = 0, position:uint = 0, length:uint = 0 ) {
-			this.type = type;
-			this.position = position;
-			this.length = length;
+		public function Color(data:Data, hasAlpha:Boolean) {
+			r = data.readUnsignedByte();
+			g = data.readUnsignedByte();
+			b = data.readUnsignedByte();
+			if ( hasAlpha ) {
+				a = data.readUnsignedByte();
+			} else {
+				a = 0xff;
+			}
 		}
 		
-		public var type		:int;
-		public var position	:uint;
-		public var length	:uint;
-		public var data		:SWFData;
+		public var r:uint;
+		public var g:uint;
+		public var b:uint;
+		public var a:uint;
+
+		public function toString():String {
+			return value.toString(16); 
+		}
+		
+		public function get value():uint {
+			return a << 24 | r << 16 | g << 8 | b;
+		}
+		
+		public function get color():uint {
+			return r << 16 | g << 8 | b;
+		}
+		
+		public function get alpha():Number {
+			return a / 0xff;
+		}
+		
 	}
 	
 }

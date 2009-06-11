@@ -38,29 +38,29 @@ package wumedia.parsers.swf {
 				var header:String = data.readUTFBytes(3);
 				_version = data.readUnsignedByte();
 				_size = data.readUnsignedInt();
-				_data = new SWFData(data);
+				_data = new Data(data);
 				if ( header == "CWS" ) {
 					var tmp:ByteArray = new ByteArray();
 					_data.readBytes( tmp );
 					tmp.position = 0;
 					tmp.uncompress();
 					tmp.position = 0;
-					_data = new SWFData(tmp);
+					_data = new Data(tmp);
 				}
-				_rect = new SWFRect(_data);
+				_rect = _data.readRect();
 				_frameRate = _data.readUnsignedShort() >> 8;
 				_frames = _data.readShort();
 			}
 		}
 		
-		protected var _data			:SWFData;
+		protected var _data			:Data;
 		protected var _version		:uint;
 		protected var _size			:uint;
 		protected var _rect			:Rectangle;
 		protected var _frameRate	:uint;
 		protected var _frames		:uint;
 		
-		public function parseTags(type:*, includeContent:Boolean, endTag:uint = 0, source:SWFData = null):Array {
+		public function parseTags(type:*, includeContent:Boolean, endTag:uint = 0, source:Data = null):Array {
 			if ( source == null ) {
 				source = _data;
 			}
@@ -69,7 +69,7 @@ package wumedia.parsers.swf {
 			var tagPosition:uint;
 			var bpos:uint = source.position;
 			var tags:Array = [];
-			var tag:SWFTag;
+			var tag:Tag;
 			while ( source.bytesAvailable && tagType != endTag ) {
 				tagType = source.readUnsignedShort();
 				tagLength = tagType & 0x3f;
@@ -79,12 +79,12 @@ package wumedia.parsers.swf {
 				tagType >>= 6;
 				tagPosition = source.position;
 				if ( tagType == type || (type is Array ? (type as Array).indexOf(tagType) != -1 : false) ) {
-					tag = new SWFTag(tagType, source.position, tagLength);
+					tag = new Tag(tagType, source.position, tagLength);
 					if ( includeContent ) {
 						var content:ByteArray = new ByteArray();
 						source.readBytes(content, 0, tag.length);
 						content.position = 0;
-						tag.data = new SWFData(content);
+						tag.data = new Data(content);
 					}
 					tags.push( tag );
 				}
@@ -97,7 +97,7 @@ package wumedia.parsers.swf {
 		}
 		
 		
-		public function get data()		:SWFData { return _data; }
+		public function get data()		:Data { return _data; }
 		public function get ver()		:uint { return _version; }
 		public function get size()		:uint { return _size; }
 		public function get rect()		:Rectangle { return _rect; }

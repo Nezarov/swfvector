@@ -23,44 +23,32 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 package wumedia.parsers.swf {
-	import flash.geom.Matrix;	
-	/**
+	
+	/**
 	 * ...
 	 * @author guojian@wu-media.com
 	 */
-	public class SWFMatrix extends Matrix {
+	public class KerningRecord {
 		
-		public function SWFMatrix(data:SWFData) {
-			var scaleX:Number;
-			var scaleY:Number;
-			var rotate0:Number;
-			var rotate1:Number;
-			var translateX:Number;
-			var translateY:Number;
-			var bits:uint;
-			data.synchBits();
-			if ( data.readUBits(1) == 1) {
-				bits = data.readUBits(5);
-				scaleX = data.readSBits(bits) / 65536.0;
-				scaleY = data.readSBits(bits) / 65536.0;
-			} else {
-				scaleX = 1;
-				scaleY = 1;
-			}
-			if ( data.readUBits(1) == 1) {
-				bits = data.readUBits(5);
-				rotate0 = data.readSBits(bits) / 65536.0;
-				rotate1 = data.readSBits(bits) / 65536.0;
-			} else {
-				rotate0 = 0;
-				rotate1 = 0;
-			}
-			bits = data.readUBits(5);
-			translateX = data.readSBits(bits) * 0.05;
-			translateY = data.readSBits(bits) * 0.05;
-			
-			super(scaleX, rotate0, rotate1, scaleY, translateX, translateY);
+		public function KerningRecord(data:Data, wideCodes:Boolean) {
+			_kerningCode0 = wideCodes ? data.readUnsignedShort() : data.readUnsignedByte();
+			_kerningCode1 = wideCodes ? data.readUnsignedShort() : data.readUnsignedByte();
+			_kerningChar0 = String.fromCharCode(kerningCode0);
+			_kerningChar1 = String.fromCharCode(kerningCode1);
+			_kerningAdjustment = data.readShort();
 		}
+		
+		private var _kerningCode0 		:uint;
+		private var _kerningCode1 		:uint;
+		private var _kerningChar0		:String;
+		private var _kerningChar1		:String;
+		private var _kerningAdjustment	:uint;
+		public function get kerningCode0():uint { return _kerningCode0; }
+		public function get kerningCode1():uint { return _kerningCode1; }
+		public function get kerningAdjustment():uint { return _kerningAdjustment; }
+		public function get kerningChar0():String { return _kerningChar0; }
+		public function get kerningChar1():String { return _kerningChar1; }
+		
 		
 	}
 	

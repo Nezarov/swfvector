@@ -27,10 +27,10 @@ package wumedia.parsers.swf {
 	/**
 	 * @author guojian@wu-media.com
 	 */
-	public class SWFGraphicsEdge {
+	public class Edge {
 		static public const CURVE	:uint = 0;
 		static public const LINE	:uint = 1;
-		public function SWFGraphicsEdge(type:uint, data:SWFData, startX:int = 0.0, startY:int = 0.0) {
+		public function Edge(type:uint, data:Data, startX:int = 0.0, startY:int = 0.0) {
 			this.type = type;
 			if (data) {
 				sx = startX;
@@ -51,8 +51,8 @@ package wumedia.parsers.swf {
 		public var x:int;
 		public var y:int;
 		
-		public function reverse():SWFGraphicsEdge {
-			var edge:SWFGraphicsEdge = new SWFGraphicsEdge(type, null);
+		public function reverse():Edge {
+			var edge:Edge = new Edge(type, null);
 			edge.x = sx;
 			edge.y = sy;
 			edge.cx = cx;
@@ -70,7 +70,7 @@ package wumedia.parsers.swf {
 			}
 		}
 		
-		private function parseLine(data:SWFData) : void {
+		private function parseLine(data:Data) : void {
 			var numBits:uint = data.readUBits(4) + 2;
 			var generaLine:Boolean = data.readUBits(1) == 1;
 			if ( generaLine ) {
@@ -88,7 +88,7 @@ package wumedia.parsers.swf {
 			}
 		}
 
-		private function parseCurve(data:SWFData) : void {
+		private function parseCurve(data:Data) : void {
 			var numBits:uint = data.readUBits(4) + 2;
 			cx = data.readSBits(numBits) + sx;
 			cy = data.readSBits(numBits) + sy;

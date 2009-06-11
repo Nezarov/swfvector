@@ -23,10 +23,10 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 package wumedia.vector {
-	import wumedia.parsers.swf.SWFDefineFont;
+	import wumedia.parsers.swf.DefineFont;
 	import wumedia.parsers.swf.SWFParser;
-	import wumedia.parsers.swf.SWFShapeRecord;
-	import wumedia.parsers.swf.SWFTagTypes;
+	import wumedia.parsers.swf.ShapeRecord;
+	import wumedia.parsers.swf.TagTypes;
 	
 	import flash.geom.Rectangle;
 	import flash.utils.ByteArray;
@@ -67,10 +67,10 @@ package wumedia.vector {
 		static public function extractFont(swfBytes:ByteArray, traceAdditions:Boolean = false):void {
 			try {
 				var swf:SWFParser = new SWFParser(swfBytes);
-				var tags:Array = swf.parseTags(SWFTagTypes.DEFINE_FONT3, true);
+				var tags:Array = swf.parseTags(TagTypes.DEFINE_FONT3, true);
 				var i:int = tags.length;
 				while ( --i > -1 ) {
-					var font:SWFDefineFont = new SWFDefineFont(tags[i]);
+					var font:DefineFont = new DefineFont(tags[i]);
 					if ( !_fontDefinitions[font.name] ) {
 						_fontDefinitions[font.name] = font;
 						if ( traceAdditions ) {
@@ -107,7 +107,7 @@ package wumedia.vector {
 				trace("ERROR: missing " + font + " font");
 				return;
 			}
-			var fontDef:SWFDefineFont = _fontDefinitions[font];
+			var fontDef:DefineFont = _fontDefinitions[font];
 			var scale:Number = 1 / (EM_SIZE / size);
 			var offsetX:Number;
 			var offsetY:Number;
@@ -182,7 +182,7 @@ package wumedia.vector {
 						// flush the X to the 0 delta position
 						offsetX -= fontDef.glyphs[char].bounds.left * scale;
 					}
-					SWFShapeRecord.drawShape(graphics, fontDef.glyphs[char], scale, offsetX, offsetY);
+					ShapeRecord.drawShape(graphics, fontDef.glyphs[char], scale, offsetX, offsetY);
 					offsetX += (advance + advance * kerning) * scale;
 				}
 				offsetY += leading;
@@ -221,7 +221,7 @@ package wumedia.vector {
 		 * @param width:Number	Wrap to the next line if the current line exceeds this width
 		 * @return Array of String
 		 */
-		static private function breakLines(fontDef:SWFDefineFont, size:Number, text:String, kerning:Number, width:Number ):Array {
+		static private function breakLines(fontDef:DefineFont, size:Number, text:String, kerning:Number, width:Number ):Array {
 			var scale:Number = 1.0 / (EM_SIZE / size);
 			var w:Number = 0;
 			var char:String;
@@ -269,7 +269,7 @@ package wumedia.vector {
 		 * Return an array that contains the width for each lines of text
 		 * @private
 		 */
-		static private function measureLines(fontDef:SWFDefineFont, size:Number, kerning:Number, lines:Array):Array {
+		static private function measureLines(fontDef:DefineFont, size:Number, kerning:Number, lines:Array):Array {
 			var scale:Number = 1.0 / (EM_SIZE / size);
 			var metrics:Array = new Array(lines.length);
 			var char:String;
@@ -312,8 +312,8 @@ package wumedia.vector {
 		 * @param font:String	The name of the font
 		 * @return SWFDefineFont3
 		 */
-		static public function getFontDefinition(font:String):SWFDefineFont {
-			return _fontDefinitions[font] || new SWFDefineFont(null);
+		static public function getFontDefinition(font:String):DefineFont {
+			return _fontDefinitions[font] || new DefineFont(null);
 		}
 		
 		

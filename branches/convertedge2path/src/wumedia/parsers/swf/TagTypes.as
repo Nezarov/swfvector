@@ -28,7 +28,7 @@ package wumedia.parsers.swf {
 	 * ...
 	 * @author guojian@wu-media.com
 	 */
-	public class SWFTagTypes {
+	public class TagTypes {
 		
 		static public const END									:uint = 0;
 		static public const SHOW_FRAME							:uint = 1;

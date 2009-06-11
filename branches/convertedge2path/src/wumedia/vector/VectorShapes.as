@@ -23,18 +23,8 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 package wumedia.vector {
-	import wumedia.parsers.swf.SWFData;
-	import wumedia.parsers.swf.SWFMatrix;
-	import wumedia.parsers.swf.SWFParser;
-	import wumedia.parsers.swf.SWFRect;
-	import wumedia.parsers.swf.SWFShapeRecord;
-	import wumedia.parsers.swf.SWFTag;
-	import wumedia.parsers.swf.SWFTagTypes;
-	
-	import flash.geom.Matrix;
-	import flash.utils.ByteArray;
-	import flash.utils.getQualifiedClassName;	
-	/**
+	import wumedia.parsers.swf.Data;	import wumedia.parsers.swf.SWFParser;	import wumedia.parsers.swf.ShapeRecord;	import wumedia.parsers.swf.Tag;	import wumedia.parsers.swf.TagTypes;		import flash.geom.Matrix;	import flash.utils.ByteArray;	import flash.utils.getQualifiedClassName;	
+	/**
 	 * @author guojian@wu-media.com
 	 */
 	public class VectorShapes {
@@ -50,7 +40,7 @@ package wumedia.vector {
 		 */
 		static public function draw(graphics:*, id:String, scale:Number = 1.0, offsetX:Number = 0.0, offsetY:Number = 0.0):void {
 			if ( _library[id] ) {
-				SWFShapeRecord.drawShape(graphics, _library[id], scale, offsetX, offsetY);
+				ShapeRecord.drawShape(graphics, _library[id], scale, offsetX, offsetY);
 			} else {
 				trace("ERROR: missing " + id + " vector");
 			}
@@ -66,8 +56,8 @@ package wumedia.vector {
 				var swf:SWFParser = new SWFParser(bytes);
 				var classes:Object = parseClassIdTable(swf);
 				var sprites:Array = swf.parseTags([
-					SWFTagTypes.DEFINE_SPRITE
-					], true).filter(function(tag:SWFTag, ...args):Boolean {
+					TagTypes.DEFINE_SPRITE
+					], true).filter(function(tag:Tag, ...args):Boolean {
 						var spriteId:uint = tag.data.readUnsignedShort();
 						tag.data.position -= 2;
 						return ids.indexOf(classes[spriteId]) != -1;
@@ -77,11 +67,11 @@ package wumedia.vector {
 				while ( ++i < l ) {
 					sprites[i].data.readUnsignedInt(); // move read position to tags
 					var placeTags:Array = parsePlacetags(swf.parseTags([
-						SWFTagTypes.PLACE_OBJECT,
-						SWFTagTypes.PLACE_OBJECT2,
-						SWFTagTypes.PLACE_OBJECT3
+						TagTypes.PLACE_OBJECT,
+						TagTypes.PLACE_OBJECT2,
+						TagTypes.PLACE_OBJECT3
 						], true, 1, sprites[i].data));
-					var defineShape:SWFTag = getShapeFromPlaceTags(swf, placeTags);
+					var defineShape:Tag = getShapeFromPlaceTags(swf, placeTags);
 					if ( defineShape ) {
 						sprites[i].data.position = 0;
 						var spriteId:uint = sprites[i].data.readUnsignedShort();
@@ -90,7 +80,7 @@ package wumedia.vector {
 						if ( _library[classes[spriteId]] ) {
 							trace("WARNING: vector shape with id " + classes[spriteId] +  " already exists. replacing.");
 						}
-						_library[classes[spriteId]] = new SWFShapeRecord(defineShape.data, defineShape.type);
+						_library[classes[spriteId]] = new ShapeRecord(defineShape.data, defineShape.type);
 					}
 				}
 			} catch (err:Error) {
@@ -112,18 +102,18 @@ package wumedia.vector {
 				}
 				var swf:SWFParser = new SWFParser(bytes);
 				var placeTags:Array = parsePlacetags(swf.parseTags([
-					SWFTagTypes.PLACE_OBJECT,
-					SWFTagTypes.PLACE_OBJECT2,
-					SWFTagTypes.PLACE_OBJECT3
+					TagTypes.PLACE_OBJECT,
+					TagTypes.PLACE_OBJECT2,
+					TagTypes.PLACE_OBJECT3
 					], true, 1));
-				var defineShape:SWFTag = getShapeFromPlaceTags(swf, placeTags);
+				var defineShape:Tag = getShapeFromPlaceTags(swf, placeTags);
 				if ( defineShape ) {
 					defineShape.data.position = 0;
 					shiftDataPosToShapeRecord(defineShape.data, defineShape.type);
 					if ( _library[id] ) {
 						trace("WARNING: vector shape with id " + id +  " already exists. replacing.");
 					}
-					_library[id] = new SWFShapeRecord(defineShape.data, defineShape.type);
+					_library[id] = new ShapeRecord(defineShape.data, defineShape.type);
 				} else {
 					throw new Error("no shapes found");
 				}
@@ -135,13 +125,13 @@ package wumedia.vector {
 			}
 		}
 
-		static private function getShapeFromPlaceTags(swf:SWFParser, placeTags:Array):SWFTag {
+		static private function getShapeFromPlaceTags(swf:SWFParser, placeTags:Array):Tag {
 			var lib:Array = swf.parseTags([
-				SWFTagTypes.DEFINE_SHAPE,
-				SWFTagTypes.DEFINE_SHAPE2,
-				SWFTagTypes.DEFINE_SHAPE3,
-				SWFTagTypes.DEFINE_SHAPE4
-				], true).filter(function(tag:SWFTag, ...args):Boolean {
+				TagTypes.DEFINE_SHAPE,
+				TagTypes.DEFINE_SHAPE2,
+				TagTypes.DEFINE_SHAPE3,
+				TagTypes.DEFINE_SHAPE4
+				], true).filter(function(tag:Tag, ...args):Boolean {
 					var shapeId:uint = tag.data.readUnsignedShort();
 					tag.data.position = 0;
 					return placeTags.indexOf(shapeId) != -1;
@@ -155,22 +145,22 @@ package wumedia.vector {
 			var l:int = tags.length;
 			var shapeId:uint;
 			var matrix:Matrix;
-			var placeData:SWFData;
+			var placeData:Data;
 			var placeType:uint;
 			var placeFlags:uint;
 			while ( ++i < l ) {
 				placeData = tags[i].data;
 				placeType = tags[i].type;
-				if ( placeType == SWFTagTypes.PLACE_OBJECT ) {
+				if ( placeType == TagTypes.PLACE_OBJECT ) {
 					shapeId = placeData.readUnsignedShort();
 					placeData.readUnsignedShort(); // depth
-					matrix = new SWFMatrix(placeData);
-				} else if ( placeType == SWFTagTypes.PLACE_OBJECT2 ) {
+					matrix = placeData.readMatrix();
+				} else if ( placeType == TagTypes.PLACE_OBJECT2 ) {
 					placeData.readUBits(8); // flags
 					placeData.readUnsignedShort(); // depth
 					shapeId = placeData.readUnsignedShort();
-					matrix = new SWFMatrix(placeData);
-				} else if ( placeType == SWFTagTypes.PLACE_OBJECT3 ) {
+					matrix = placeData.readMatrix();
+				} else if ( placeType == TagTypes.PLACE_OBJECT3 ) {
 					placeFlags = placeData.readUBits(16); // tags
 					placeData.readUnsignedShort(); // depth
 					if ( (placeFlags & 8 ) != 0
@@ -179,7 +169,7 @@ package wumedia.vector {
 						placeData.readString(); // name of class for placed object
 					}
 					shapeId = placeData.readUnsignedShort();
-					matrix = new SWFMatrix(placeData);
+					matrix = placeData.readMatrix();
 				} else {
 					shapeId = 0;
 				}
@@ -193,12 +183,12 @@ package wumedia.vector {
 		
 		static private function parseClassIdTable( swf:SWFParser ):Object {
 			var result:Object = {};
-			var tags:Array = swf.parseTags(SWFTagTypes.SYMBOL_CLASS, true);
+			var tags:Array = swf.parseTags(TagTypes.SYMBOL_CLASS, true);
 			if ( tags.length != 1 ) {
 				// no symbol class found
 				return result;
 			}
-			var tagData:SWFData = tags[0].data;
+			var tagData:Data = tags[0].data;
 			var numSymbols:uint = tagData.readUnsignedShort();
 			var i:int = -1;
 			while ( ++i < numSymbols ) {
@@ -209,11 +199,11 @@ package wumedia.vector {
 			return result;
 		}
 		
-		static private function shiftDataPosToShapeRecord(data:SWFData, defineShapeType:uint ):void {
+		static private function shiftDataPosToShapeRecord(data:Data, defineShapeType:uint ):void {
 			data.readUnsignedShort();
-			new SWFRect(data);
-			if ( defineShapeType == SWFTagTypes.DEFINE_SHAPE4 ) {
-				new SWFRect(data); // bounds
+			data.readRect();
+			if ( defineShapeType == TagTypes.DEFINE_SHAPE4 ) {
+				data.readRect(); // bounds
 				data.readUBits(5); // reversed - must be 0;
 				data.readUBits(1); // UsesFillWindingRule if 1 (swf 10)
 				data.readUBits(1); // UsesNonScalingStrokes
