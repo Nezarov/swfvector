@@ -24,7 +24,6 @@
  */
 package wumedia.parsers.swf {
 	import flash.utils.ByteArray;
-	import flash.geom.Rectangle;	
 
 	/**
 	 * ...
