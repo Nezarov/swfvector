@@ -23,11 +23,9 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 package wumedia.parsers.swf {
-import flash.display.Graphics;
-import flash.display.Shape;
-import flash.geom.Rectangle;	
-	
-		
+	import flash.display.Graphics;
+	import flash.display.Shape;
+	import flash.geom.Rectangle;	
 
 	/**
 	 * ...
@@ -83,6 +81,8 @@ import flash.geom.Rectangle;
 		}
 		
 		private var _tagType				:uint;
+		private var _fillBits				:uint;
+		private var _lineBits				:uint;
 		private var _hasStyle				:Boolean;
 		private var _hasAlpha				:Boolean;
 		private var _hasExtendedFill		:Boolean;
@@ -97,13 +97,12 @@ import flash.geom.Rectangle;
 		private var _fill1Index				:uint;
 		
 		private function parse(data:SWFData):void {
-			var fillBits:uint;
-			var lineBits:uint;
 			var stateMoveTo:Boolean;
 			var stateFillStyle0:Boolean;
 			var stateFillStyle1:Boolean;
 			var stateLineStyle:Boolean;
 			var stateNewStyles:Boolean;
+			var moveBits:uint;
 			var fillStyle0:int;
 			var fillStyle1:int;
 			var lineStyle:int;
@@ -123,8 +122,8 @@ import flash.geom.Rectangle;
 				_fill0 = [];
 				_fill0Index = 0;
 			}
-			fillBits = data.readUBits(4);
-			lineBits = data.readUBits(4);
+			_fillBits = data.readUBits(4);
+			_lineBits = data.readUBits(4);
 			while ( true ) {
 				var type:uint = data.readUBits(1);
 				if ( type == 1 ) {
@@ -145,24 +144,24 @@ import flash.geom.Rectangle;
 						// end
 						break;
 					}
-					stateMoveTo		= (flags & 0x01) != 0;
-					stateFillStyle0	= (flags & 0x02) != 0;
-					stateFillStyle1	= (flags & 0x04) != 0;
-					stateLineStyle	= (flags & 0x08) != 0;
-					stateNewStyles	= (flags & 0x10) != 0;
+					stateMoveTo = (flags & 0x01) != 0;
+					stateFillStyle0 = (flags & 0x02) != 0;
+					stateFillStyle1 = (flags & 0x04) != 0;
+					stateLineStyle = (flags & 0x08) != 0;
+					stateNewStyles = (flags & 0x10) != 0;
 					if ( stateMoveTo ) {
-						var moveBits:uint = data.readUBits(5);
+						moveBits = data.readUBits(5);
 						dx = data.readSBits(moveBits);
 						dy = data.readSBits(moveBits);
 					}
 					if ( stateFillStyle0 ) {
-						fillStyle0 = data.readUBits(fillBits);
+						fillStyle0 = data.readUBits(_fillBits);
 					}
 					if ( stateFillStyle1 ) {
-						fillStyle1 = data.readUBits(fillBits);
+						fillStyle1 = data.readUBits(_fillBits);
 					}
 					if ( stateLineStyle ) {
-						lineStyle = data.readUBits(lineBits);
+						lineStyle = data.readUBits(_lineBits);
 					}
 					if ( _hasStyle ) {
 						saveFills();
@@ -178,15 +177,11 @@ import flash.geom.Rectangle;
 						} else {
 							_fill1 = null;
 						}
-					} else {
-						_fills = [[]];
-						_fill0 = [];
-						_fill0Index = 0;
 					}
 					if ( _hasStateNewStyle && stateNewStyles ) {
 						parseStyles(data);
-						fillBits = data.readUBits(4);
-						lineBits = data.readUBits(4);
+						_fillBits = data.readUBits(4);
+						_lineBits = data.readUBits(4);
 					}
 				}
 			}
@@ -270,6 +265,7 @@ import flash.geom.Rectangle;
 			_bounds = _shape.getRect(_shape);
 		}
 		
+		public function get elements():Array { return _elements; }
 		public function get bounds():Rectangle { return _bounds; }
 	}
 	
