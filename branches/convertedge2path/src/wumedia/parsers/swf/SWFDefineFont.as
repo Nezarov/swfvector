@@ -89,12 +89,12 @@ package wumedia.parsers.swf {
 				var bytes:ByteArray = new ByteArray();
 				_data.readBytes(bytes, 0, gSize);
 				bytes.position = 0;
-				_shapes[i - 1] = new SWFShapeRecordSimple(new SWFData(bytes), _tagType);
+				_shapes[i - 1] = new SWFShapeRecord(new SWFData(bytes), _tagType);
 			}
 			var chars:Array = new Array(_numGlyphs);
 			for ( i = 0; i < _numGlyphs; ++i ) {
 				var char:String = String.fromCharCode(_data.readUnsignedShort());
-				var shape:SWFShapeRecordSimple = _shapes[i];
+				var shape:SWFShapeRecord = _shapes[i];
 				_glyphs[char] = shape;
 				chars[i] = char;
 				if ( char > "A" && char < "Z" ) {

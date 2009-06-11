@@ -25,7 +25,7 @@
 package wumedia.vector {
 	import wumedia.parsers.swf.SWFDefineFont;
 	import wumedia.parsers.swf.SWFParser;
-	import wumedia.parsers.swf.SWFShapeRecordSimple;
+	import wumedia.parsers.swf.SWFShapeRecord;
 	import wumedia.parsers.swf.SWFTagTypes;
 	
 	import flash.geom.Rectangle;
@@ -108,7 +108,7 @@ package wumedia.vector {
 				return;
 			}
 			var fontDef:SWFDefineFont = _fontDefinitions[font];
-			var scale:Number = 1.0 / (EM_SIZE / size);
+			var scale:Number = 1 / (EM_SIZE / size);
 			var offsetX:Number;
 			var offsetY:Number;
 			var char:String;
@@ -182,7 +182,7 @@ package wumedia.vector {
 						// flush the X to the 0 delta position
 						offsetX -= fontDef.glyphs[char].bounds.left * scale;
 					}
-					SWFShapeRecordSimple.drawShape(graphics, fontDef.glyphs[char], scale, offsetX, offsetY);
+					SWFShapeRecord.drawShape(graphics, fontDef.glyphs[char], scale, offsetX, offsetY);
 					offsetX += (advance + advance * kerning) * scale;
 				}
 				offsetY += leading;

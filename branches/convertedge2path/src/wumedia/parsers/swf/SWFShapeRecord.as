@@ -38,9 +38,9 @@ package wumedia.parsers.swf {
 			var elems:Array = shape.elements;
 			var elemNum:int = -1;
 			var elemLen:int = elems.length;
-			scale *= .05;
 			var dx:int = 0;
 			var dy:int = 0;
+			scale *= .05;
 			while ( ++elemNum < elemLen ) {
 				if ( elems[elemNum] is SWFGraphicsElement ) {
 					elems[elemNum].apply(graphics, scale, offsetX, offsetY);
@@ -75,6 +75,7 @@ package wumedia.parsers.swf {
 						|| _tagType == SWFTagTypes.DEFINE_SHAPE4;
 			_hasStateNewStyle = _tagType == SWFTagTypes.DEFINE_SHAPE2
 						|| _tagType == SWFTagTypes.DEFINE_SHAPE3;
+						
 			parse(data);
 			if ( _elements.length > 0 ) {
 				calculateBounds();
@@ -121,6 +122,10 @@ package wumedia.parsers.swf {
 			if ( _hasStyle ) {
 				parseStyles(data);
 				data.synchBits();
+			} else {
+				_fills = [[]];
+				_fill0 = [];
+				_fill0Index = 0;
 			}
 			_fillBits = data.readUBits(4);
 			_lineBits = data.readUBits(4);
@@ -231,10 +236,10 @@ package wumedia.parsers.swf {
 		
 		private function saveFills():void {
 			if ( _fill0 ) {
-				 _fill0.reverse();
 				_fills[_fill0Index] = _fills[_fill0Index].concat(_fill0);
 			}
 			if( _fill1 ) {
+				_fill1.reverse();
 				_fills[_fill1Index] = _fills[_fill1Index].concat(_fill1);
 			}
 		}

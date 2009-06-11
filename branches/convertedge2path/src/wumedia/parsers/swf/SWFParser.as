@@ -78,7 +78,7 @@ package wumedia.parsers.swf {
 				}
 				tagType >>= 6;
 				tagPosition = source.position;
-				if ( tagType == type || (type is Array ? type.indexOf(tagType) != -1 : false) ) {
+				if ( tagType == type || (type is Array ? (type as Array).indexOf(tagType) != -1 : false) ) {
 					tag = new SWFTag(tagType, source.position, tagLength);
 					if ( includeContent ) {
 						var content:ByteArray = new ByteArray();
