@@ -62,20 +62,32 @@ package wumedia.vector {
 		 * Extract font information from the ByteArray of a swf file<br/>
 		 * 		DynamicText.extractFontInformation(root.loaderInfo.bytes);<br/><br/>
 		 * @param swfBytes:ByteArray		The source
+		 * @param fontNames:Array<String>	If provided only parse for these fonts, if null, parse for all
+		 * 									It is recommended that you pass the list of fonts you want, parsing
+		 * 									parsing every font can be slow and lock up your machine
 		 * @param traceAdditions:Boolean	If true, trace out a list of names we extracted from the swf
 		 */
-		static public function extractFont(swfBytes:ByteArray, traceAdditions:Boolean = false):void {
+		static public function extractFont(swfBytes:ByteArray, fontNames:Array = null, traceAdditions:Boolean = false):void {
 			try {
 				var swf:SWFParser = new SWFParser(swfBytes);
 				var tags:Array = swf.parseTags(TagTypes.DEFINE_FONT3, true);
 				var i:int = tags.length;
 				while ( --i > -1 ) {
-					var font:DefineFont = new DefineFont(tags[i]);
+					var font:DefineFont = new DefineFont(tags[i], false);
 					if ( !_fontDefinitions[font.name] ) {
-						_fontDefinitions[font.name] = font;
-						if ( traceAdditions ) {
-							trace(font.name);
+						if ((fontNames == null) || (fontNames is Array && fontNames.indexOf(font.name) != -1)) {
+							font.parseBody();
+						} else {
+							font = null;
 						}
+						if ( font ) {
+							_fontDefinitions[font.name] = font;
+							if ( traceAdditions ) {
+								trace(font.name);
+							}
+						}
+					} else {
+						trace("Font ", font.name, "already exists, skipping");
 					}
 				}
 			} catch ( err:Error ) {

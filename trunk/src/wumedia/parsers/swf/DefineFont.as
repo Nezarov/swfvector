@@ -31,14 +31,17 @@ package wumedia.parsers.swf {
 	 */
 	public class DefineFont {
 		
-		public function DefineFont(tag:Tag) {
+		public function DefineFont(tag:Tag, doParseBody:Boolean = true) {
 			_data = tag.data;
 			_tagType = tag.type;
 			_ascent = 0;
 			_descent = 0;
 			_leading = 0;
 			if ( _data ) {
-				parse();
+				parseHeader();
+				if ( doParseBody ) {
+					parseBody();
+				}
 			}
 		}
 		
@@ -57,13 +60,8 @@ package wumedia.parsers.swf {
 		private var _bottom		:Number;
 		
 		
-		private function parse():void {
-			var i:int;
-			var gSize:uint;
+		private function parseHeader():void {
 			var nLen:uint;
-			var offsets:Array;
-			var off32:Boolean;
-			
 			_glyphs = { };
 			_advances = { };
 			_top = Number.POSITIVE_INFINITY;
@@ -74,6 +72,17 @@ package wumedia.parsers.swf {
 			_data.position += 1;	// language
 			nLen = _data.readUnsignedByte();
 			_name = _data.readUTFBytes(nLen);
+		}
+		
+		public function parseBody():void {
+			if ( _shapes is Array ) {
+				return;
+			}
+			var i:int;
+			var gSize:uint;
+			var offsets:Array;
+			var off32:Boolean;
+			
 			_numGlyphs = _data.readUnsignedShort();
 			
 			offsets = new Array(_numGlyphs + 1);
@@ -125,7 +134,6 @@ package wumedia.parsers.swf {
 				}
 				*/
 			}
-			
 		}
 		
 		public function get name():String { return _name; }

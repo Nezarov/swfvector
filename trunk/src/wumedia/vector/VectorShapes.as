@@ -77,10 +77,11 @@ package wumedia.vector {
 						var spriteId:uint = sprites[i].data.readUnsignedShort();
 						defineShape.data.position = 0;
 						shiftDataPosToShapeRecord(defineShape.data, defineShape.type);
-						if ( _library[classes[spriteId]] ) {
-							trace("WARNING: vector shape with id " + classes[spriteId] +  " already exists. replacing.");
+						if ( !_library[classes[spriteId]] ) {
+							_library[classes[spriteId]] = new ShapeRecord(defineShape.data, defineShape.type);
+						} else {
+							trace("WARNING: vector shape with id " + classes[spriteId] +  " already exists. skipping.");
 						}
-						_library[classes[spriteId]] = new ShapeRecord(defineShape.data, defineShape.type);
 					}
 				}
 			} catch (err:Error) {
@@ -97,9 +98,6 @@ package wumedia.vector {
 		 */
 		static public function extractFromStage( bytes:ByteArray, id:String):void {
 			try {
-				if ( _library[id] ) {
-					throw new Error(id + " already exists");
-				}
 				var swf:SWFParser = new SWFParser(bytes);
 				var placeTags:Array = parsePlacetags(swf.parseTags([
 					TagTypes.PLACE_OBJECT,
@@ -110,10 +108,11 @@ package wumedia.vector {
 				if ( defineShape ) {
 					defineShape.data.position = 0;
 					shiftDataPosToShapeRecord(defineShape.data, defineShape.type);
-					if ( _library[id] ) {
-						trace("WARNING: vector shape with id " + id +  " already exists. replacing.");
+					if ( !_library[id] ) {
+						_library[id] = new ShapeRecord(defineShape.data, defineShape.type);
+					} else {
+						trace("WARNING: vector shape with id " + id +  " already exists, skipping.");
 					}
-					_library[id] = new ShapeRecord(defineShape.data, defineShape.type);
 				} else {
 					throw new Error("no shapes found");
 				}
