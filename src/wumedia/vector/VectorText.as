@@ -195,6 +195,9 @@ package wumedia.vector {
 							// flush the X to the 0 delta position
 							offsetX -= fontDef.glyphs[char].bounds.left * scale;
 						}
+						if ( graphics.hasOwnProperty("startNewShape") ) {
+							graphics["startNewShape"]();
+						}
 						ShapeRecord.drawShape(graphics, fontDef.glyphs[char], scale, offsetX, offsetY);
 						offsetX += (advance + advance * kerning) * scale;
 					}
