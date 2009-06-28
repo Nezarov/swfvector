@@ -46,7 +46,7 @@
 			graphics.endFill();
 			
 			graphics.beginGradientFill(GradientType.LINEAR, [0xff4400, 0x0000ff, 0xff4400], [1, 1, 1], [0x00, 0x77, 0xff], m);
-			VectorText.write(graphics, "_Arial", 20, 20, 0, "Hello World. This text is aligned TOP LEFT on baseline", w2, h2, w2, VectorText.TOP_LEFT, false);			graphics.endFill();
+			VectorText.write(graphics, "_Webdings", 20, 20, 0, "Hello World. This text is aligned TOP LEFT on baseline", w2, h2, w2, VectorText.TOP_LEFT, false);			graphics.endFill();
 		}
 	}
 	
