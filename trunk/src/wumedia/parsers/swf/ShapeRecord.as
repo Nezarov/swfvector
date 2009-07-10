@@ -41,9 +41,6 @@ package wumedia.parsers.swf {
 					dx = edge.x;
 					dy = edge.y;
 				} else if ( elems[elemNum] is FillStyle ) {
-					if ( graphics.hasOwnProperty("startNewShape") ) {
-						graphics["startNewShape"]();
-					}
 					(elems[elemNum] as FillStyle).apply(graphics, scale, offsetX, offsetY);
 				}
 				// lineStyles not supported yet
