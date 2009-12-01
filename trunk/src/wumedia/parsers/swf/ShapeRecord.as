@@ -62,7 +62,8 @@ package wumedia.parsers.swf {
 						|| _tagType == TagTypes.DEFINE_SHAPE3
 						|| _tagType == TagTypes.DEFINE_SHAPE4;
 			_hasStateNewStyle = _tagType == TagTypes.DEFINE_SHAPE2
-						|| _tagType == TagTypes.DEFINE_SHAPE3;
+						|| _tagType == TagTypes.DEFINE_SHAPE3
+						|| _tagType == TagTypes.DEFINE_SHAPE4;
 						
 			parse(data);
 			if ( _elements.length > 0 ) {
