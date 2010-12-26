@@ -85,7 +85,7 @@ package wumedia.parsers.swf {
 		
 		public function readByte():int{
 			synchBits();
-			return readByte();
+			return _data.readByte();
 		}
 		
 		public function readBytes(bytes:ByteArray, offset:uint = 0, length:uint = 0):void {
