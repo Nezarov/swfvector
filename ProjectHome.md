@@ -1,0 +1,1 @@
+This package contains parsing classes that allows you to extract vector graphics and font glyphs straight out of a swf file and classes that allows you to draw with them using the flash drawing API or your favorite 3D engine.
